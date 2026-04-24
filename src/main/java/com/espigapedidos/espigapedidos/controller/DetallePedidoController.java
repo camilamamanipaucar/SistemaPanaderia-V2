@@ -9,6 +9,7 @@ import com.espigapedidos.espigapedidos.service.ProductoService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import com.espigapedidos.espigapedidos.dto.DetallePedidoRequest;
 
 @Controller
 @RequestMapping("/detalle-pedido")
@@ -55,27 +56,28 @@ public class DetallePedidoController {
 
         model.addAttribute("pedido", pedido);
         model.addAttribute("productos", productoService.listarProductos());
-        model.addAttribute("detallePedido", new DetallePedido());
+        model.addAttribute("detallePedido", new DetallePedidoRequest());
 
         return VIEW_FORMULARIO_DETALLE;
     }
 
     @PostMapping("/guardar")
-    public String guardarDetalle(@ModelAttribute DetallePedido detallePedido,
-                                 @RequestParam("pedidoId") Long pedidoId,
-                                 @RequestParam("productoId") Long productoId) {
-        Pedido pedido = pedidoService.obtenerPedidoPorId(pedidoId);
-        Producto producto = productoService.obtenerProductoPorId(productoId);
+    public String guardarDetalle(@ModelAttribute DetallePedidoRequest request) {
+        Pedido pedido = pedidoService.obtenerPedidoPorId(request.getPedidoId());
+        Producto producto = productoService.obtenerProductoPorId(request.getProductoId());
 
         if (pedido == null || producto == null) {
             return REDIRECT_PEDIDOS;
         }
 
+        DetallePedido detallePedido = new DetallePedido();
         detallePedido.setPedido(pedido);
         detallePedido.setProducto(producto);
+        detallePedido.setCantidad(request.getCantidad());
+
         detallePedidoService.guardarDetalle(detallePedido);
 
-        return REDIRECT_DETALLE + pedidoId;
+        return REDIRECT_DETALLE + request.getPedidoId();
     }
 
     @PostMapping("/eliminar/{id}/{pedidoId}")
