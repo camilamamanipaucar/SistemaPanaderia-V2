@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.espigapedidos</groupId>
-    <artifactId>espigapedidos</artifactId>
+    <artifactId>SistemaPanaderia-V2</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>espigapedidos</name>
-    <description>espigapedidos</description>
+    <name>SistemaPanaderia-V2</name>
+    <description>SistemaPanaderia-V2</description>
     <url/>
     <licenses>
         <license/>
