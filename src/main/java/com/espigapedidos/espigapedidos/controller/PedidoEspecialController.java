@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.espigapedidos.espigapedidos.dto.PedidoEspecialRequest;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,18 +42,36 @@ public class PedidoEspecialController {
 
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevo(Model model) {
-        model.addAttribute("pedidoEspecial", new PedidoEspecial());
+        model.addAttribute("pedidoEspecial", new PedidoEspecialRequest());
         model.addAttribute("tiendas", tiendaService.listarTiendas());
         return "pedidosespeciales/formulario";
     }
 
+    private PedidoEspecial construirPedidoEspecial(PedidoEspecialRequest request, Tienda tienda) {
+        PedidoEspecial pedidoEspecial = new PedidoEspecial();
+        pedidoEspecial.setCliente(request.getCliente());
+        pedidoEspecial.setTelefono(request.getTelefono());
+        pedidoEspecial.setDescripcion(request.getDescripcion());
+        pedidoEspecial.setSabor(request.getSabor());
+        pedidoEspecial.setTamano(request.getTamano());
+        pedidoEspecial.setFechaEntrega(request.getFechaEntrega());
+        pedidoEspecial.setEstado(request.getEstado());
+        pedidoEspecial.setTienda(tienda);
+        return pedidoEspecial;
+    }
+
+
     @PostMapping("/guardar")
-    public String guardarPedidoEspecial(@ModelAttribute PedidoEspecial pedidoEspecial,
-                                        @RequestParam("tiendaId") Long tiendaId,
+    public String guardarPedidoEspecial(@ModelAttribute PedidoEspecialRequest request,
                                         @RequestParam("archivoImagen") MultipartFile archivoImagen) throws IOException {
 
-        Tienda tienda = tiendaService.obtenerTiendaPorId(tiendaId);
-        pedidoEspecial.setTienda(tienda);
+        Tienda tienda = tiendaService.obtenerTiendaPorId(request.getTiendaId());
+
+        if (tienda == null) {
+            return REDIRECT_PEDIDOS_ESPECIALES;
+        }
+
+        PedidoEspecial pedidoEspecial = construirPedidoEspecial(request, tienda);
 
         if (!archivoImagen.isEmpty()) {
             String nombreArchivo = guardarImagenSegura(archivoImagen);

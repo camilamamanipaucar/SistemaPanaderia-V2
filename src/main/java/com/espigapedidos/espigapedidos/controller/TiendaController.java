@@ -1,5 +1,6 @@
 package com.espigapedidos.espigapedidos.controller;
 
+import com.espigapedidos.espigapedidos.dto.TiendaRequest;
 import com.espigapedidos.espigapedidos.entity.Tienda;
 import com.espigapedidos.espigapedidos.service.TiendaService;
 import org.springframework.stereotype.Controller;
@@ -32,19 +33,19 @@ public class TiendaController {
 
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevo(Model model) {
-        model.addAttribute(ATTR_TIENDA, new Tienda());
+        model.addAttribute(ATTR_TIENDA, new TiendaRequest());
         return VIEW_FORMULARIO_TIENDA;
     }
 
     @PostMapping("/guardar")
-    public String guardarTienda(@ModelAttribute Tienda tienda, Model model) {
-        if (tienda.getNombre() == null || tienda.getNombre().isBlank()) {
+    public String guardarTienda(@ModelAttribute TiendaRequest request, Model model) {
+        if (request.getNombre() == null || request.getNombre().isBlank()) {
             model.addAttribute(ATTR_ERROR, "El nombre de la tienda es obligatorio");
-            model.addAttribute(ATTR_TIENDA, tienda);
+            model.addAttribute(ATTR_TIENDA, request);
             return VIEW_FORMULARIO_TIENDA;
         }
 
-        tiendaService.guardarTienda(tienda);
+        tiendaService.guardarTienda(construirTienda(request));
         return REDIRECT_TIENDAS;
     }
 
@@ -56,7 +57,7 @@ public class TiendaController {
             return REDIRECT_TIENDAS;
         }
 
-        model.addAttribute(ATTR_TIENDA, tienda);
+        model.addAttribute(ATTR_TIENDA, convertirARequest(tienda));
         return VIEW_FORMULARIO_TIENDA;
     }
 
@@ -64,5 +65,25 @@ public class TiendaController {
     public String eliminarTienda(@PathVariable Long id) {
         tiendaService.eliminarTienda(id);
         return REDIRECT_TIENDAS;
+    }
+
+    private Tienda construirTienda(TiendaRequest request) {
+        Tienda tienda = new Tienda();
+        tienda.setId(request.getId());
+        tienda.setNombre(request.getNombre());
+        tienda.setDireccion(request.getDireccion());
+        tienda.setTelefono(request.getTelefono());
+        tienda.setEstado(request.getEstado());
+        return tienda;
+    }
+
+    private TiendaRequest convertirARequest(Tienda tienda) {
+        TiendaRequest request = new TiendaRequest();
+        request.setId(tienda.getId());
+        request.setNombre(tienda.getNombre());
+        request.setDireccion(tienda.getDireccion());
+        request.setTelefono(tienda.getTelefono());
+        request.setEstado(tienda.getEstado());
+        return request;
     }
 }

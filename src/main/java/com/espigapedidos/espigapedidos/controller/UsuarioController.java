@@ -1,5 +1,6 @@
 package com.espigapedidos.espigapedidos.controller;
 
+import com.espigapedidos.espigapedidos.dto.UsuarioRequest;
 import com.espigapedidos.espigapedidos.entity.Usuario;
 import com.espigapedidos.espigapedidos.service.UsuarioService;
 import org.springframework.stereotype.Controller;
@@ -32,19 +33,21 @@ public class UsuarioController {
 
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevo(Model model) {
-        model.addAttribute(ATTR_USUARIO, new Usuario());
+        UsuarioRequest request = new UsuarioRequest();
+        request.setActivo(true);
+        model.addAttribute(ATTR_USUARIO, request);
         return VIEW_FORMULARIO_USUARIO;
     }
 
     @PostMapping("/guardar")
-    public String guardarUsuario(@ModelAttribute Usuario usuario, Model model) {
-        if (usuario.getUsername() == null || usuario.getUsername().isBlank()) {
+    public String guardarUsuario(@ModelAttribute UsuarioRequest request, Model model) {
+        if (request.getUsername() == null || request.getUsername().isBlank()) {
             model.addAttribute(ATTR_ERROR, "El nombre de usuario es obligatorio");
-            model.addAttribute(ATTR_USUARIO, usuario);
+            model.addAttribute(ATTR_USUARIO, request);
             return VIEW_FORMULARIO_USUARIO;
         }
 
-        usuarioService.guardarUsuario(usuario);
+        usuarioService.guardarUsuario(construirUsuario(request));
         return REDIRECT_USUARIOS;
     }
 
@@ -56,7 +59,7 @@ public class UsuarioController {
             return REDIRECT_USUARIOS;
         }
 
-        model.addAttribute(ATTR_USUARIO, usuario);
+        model.addAttribute(ATTR_USUARIO, convertirARequest(usuario));
         return VIEW_FORMULARIO_USUARIO;
     }
 
@@ -64,5 +67,27 @@ public class UsuarioController {
     public String eliminarUsuario(@PathVariable Long id) {
         usuarioService.eliminarUsuario(id);
         return REDIRECT_USUARIOS;
+    }
+
+    private Usuario construirUsuario(UsuarioRequest request) {
+        Usuario usuario = new Usuario();
+        usuario.setId(request.getId());
+        usuario.setNombre(request.getNombre());
+        usuario.setUsername(request.getUsername());
+        usuario.setPassword(request.getPassword());
+        usuario.setRol(request.getRol());
+        usuario.setActivo(Boolean.TRUE.equals(request.getActivo()));
+        return usuario;
+    }
+
+    private UsuarioRequest convertirARequest(Usuario usuario) {
+        UsuarioRequest request = new UsuarioRequest();
+        request.setId(usuario.getId());
+        request.setNombre(usuario.getNombre());
+        request.setUsername(usuario.getUsername());
+        request.setRol(usuario.getRol());
+        request.setActivo(usuario.getActivo());
+        request.setPassword("");
+        return request;
     }
 }

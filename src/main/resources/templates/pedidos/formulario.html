@@ -33,14 +33,12 @@
         </div>
 
         <div class="mb-3">
-            <label for="tienda" class="form-label">Tienda</label>
-            <select id="tienda" name="tienda" class="form-control" required>
+            <label for="tiendaId" class="form-label">Tienda</label>
+            <select id="tiendaId" th:field="*{tiendaId}" class="form-control" required>
                 <option value="">Seleccione una tienda</option>
                 <option th:each="tienda : ${tiendas}"
                         th:value="${tienda.id}"
-                        th:text="${tienda.nombre}"
-                        th:selected="${pedido.tienda != null and pedido.tienda.id == tienda.id}">
-                    Tienda
+                        th:text="${tienda.nombre}">
                 </option>
             </select>
         </div>
